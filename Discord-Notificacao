@@ -63,4 +63,5 @@ jobs:
           content: '❌ *FALHA:* O workflow `{{ github.workflow }}` no repositório `${{ github.repository }}` (`${{ github.ref_name }}`) FALHOU! :skull_and_crossbones: [Ver Logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})'
           # username: 'Bot de Falha CI'
           # avatar_url: 'https://cdn-icons-png.flaticon.com/512/179/179040.png' # Exemplo de URL de ícone de erro
+
 ```
