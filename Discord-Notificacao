@@ -1,0 +1,52 @@
+# Nome do seu workflow
+name: Notificação Discord de Status
+
+# Gatilhos: Quando o workflow deve ser executado
+on:
+  push:
+    branches:
+      - main # Dispara em cada push para a branch 'main'
+  workflow_dispatch: # Permite disparo manual via interface do GitHub
+
+# Define os jobs (tarefas)
+jobs:
+  exemplo_de_job: # Nome do job
+    runs-on: ubuntu-latest # Máquina virtual hospedada pelo GitHub
+
+    steps:
+      - name: Checkout do Código
+        uses: actions/checkout@v4 # Clona o repositório
+
+      - name: Executar um Comando de Exemplo
+        run: |  echo "Simulando um erro..."
+  exit 1 # Isso fará o passo falhar e o job reportará falha
+        # Para testar a notificação de falha, você pode mudar o 'exit 0' abaixo para 'exit 1'
+        # run: |
+        #   echo "Simulando um erro..."
+        #   exit 1 # Isso fará o passo falhar
+
+      # --- Notificação de SUCESSO no Discord ---
+      # Este passo só será executado se todos os passos anteriores no job forem bem-sucedidos.
+      - name: Notificar Sucesso no Discord
+        if: success() # Condição: só executa se o job atual está com status de sucesso
+        uses: actions/discord-webhook@v3 # Action para enviar mensagens para o Discord
+        with:
+          # A URL do Webhook do Discord, pega do segredo do repositório.
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }} 
+          # Conteúdo da mensagem. Use variáveis do GitHub Actions para tornar a mensagem dinâmica.
+          content: '✅ *SUCESSO:* Workflow `{{ github.workflow }}` em `${{ github.ref_name }}` concluído! Repositório: `${{ github.repository }}`. [Ver Detalhes](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})'
+          # Você pode adicionar um nome de usuário personalizado para o bot (username), avatar (avatar_url) ou embeds.
+          # username: 'Meu Bot CI'
+          # avatar_url: 'https://cdn-icons-png.flaticon.com/512/25/25231.png' # Ícone do GitHub
+
+      # --- Notificação de FALHA no Discord ---
+      # Este passo só será executado se algum passo anterior no job tiver falhado.
+      - name: Notificar Falha no Discord
+        if: failure() # Condição: só executa se o job atual está com status de falha
+        uses: actions/discord-webhook@v3 # Reusa a mesma Action
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          content: '❌ *FALHA:* Workflow `{{ github.workflow }}` em `${{ github.ref_name }}` FALHOU! Repositório: `${{ github.repository }}`. [Ver Logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})'
+          # username: 'Meu Bot CI'
+          # avatar_url: 'https://cdn-icons-png.flaticon.com/512/179/179040.png' # Ícone de erro
+```
